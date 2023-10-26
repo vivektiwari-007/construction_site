@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .menubar {
+            border: 1px solid black;
+            overflow: hidden;
+        }
+        
+        .menubar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .menubar li {
+            float: left;
+            margin-right: 10px;
+        }
+        
+        .menubar li a {
+            display: block;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="menubar" style="border: 1px solid black; overflow: hidden;">
+    <ul>
+        <li style="float: left;"><a href="/">Home</a></li>
+    </ul>
+</div>
+
+<h1>Upload Image</h1>
+
+<form action="/uploader" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+</form>
+
+</body>
+</html>

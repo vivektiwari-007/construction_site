@@ -1,0 +1,4 @@
+venv
+predict/*
+media/*
+__pycache__/

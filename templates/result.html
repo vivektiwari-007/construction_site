@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .menubar {
+            border: 1px solid black;
+            overflow: hidden;
+        }
+        
+        .menubar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .menubar li {
+            float: left;
+            margin-right: 10px;
+        }
+        
+        .menubar li a {
+            display: block;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="menubar" style="border: 1px solid black; overflow: hidden;">
+    <ul>
+        <li style="float: left;"><a href="/">Back</a></li>
+    </ul>
+</div>
+
+<p>
+    {% if image_filename %}
+    <img src="{{ image_filename }}" alt="Custom Image" style="width:500px;height:600px;">
+    {% else %}
+    <video width="320" height="240" controls>
+        <source src="{{ video_filename }}" type="video/ogg">
+        Your browser does not support the video tag.
+      </video>
+    {% endif %}
+</p>
+</body>
+</html>
