@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, send_from_directory
 import os
 from ultralytics import YOLO
+from moviepy.editor import *
 
 app = Flask(__name__)
 
@@ -18,7 +19,7 @@ def upload_file():
     return render_template('upload.html')
 
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -32,33 +33,36 @@ def upload_file_result():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
             f.save(file_path)
             model = YOLO(f'{current_path}\models\\best.pt')
-            results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True,stream=True)
-            image_file = ""
-            video_file = ""
-            message = []
-            if f.filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}:
-                image_file = os.path.join(img, f.filename)
-            elif f.filename.rsplit('.', 1)[1].lower() in {'mp4', 'avi', 'mov'}:
-                filename = f"{f.filename[0]}.avi"
-                print("filename---",filename)
-                avi_file = os.path.join(img, filename)
-                # print("vivdeo_file",video_file)
-                # output_name = f.filename
-                # os.popen("ffmpeg -i '{input}' -ac 2 -b:v 2000k -c:a aac -c:v libx264 -b:a 160k -vprofile high -bf 0 -strict experimental -f mp4 '{output}.mp4'".format(input = avi_file, output = output_name))
-                video_file = avi_file
-            else:
-                return render_template('error.html')
-            for result in results:
-                values = result.boxes.cls
-                integer_value = values.int()
-                if 5 in integer_value:
-                    if 4 in integer_value:
-                        print("Not wearing safety west")
-                    if 2 in integer_value:
-                        print("Not wearing Hardhat")
-                    if 3 in integer_value:
-                        print("Not wearing mask")
-            return render_template('result.html',  image_filename=image_file, video_filename=video_file)
+            # results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True,stream=True)
+            results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True)
+            if results:
+                image_file = ""
+                video_file = ""
+                message = []
+                if f.filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}:
+                    image_file = os.path.join(img, f.filename)
+                elif f.filename.rsplit('.', 1)[1].lower() in {'mp4'}:
+                    filename = f"{f.filename[0]}.avi"
+                    avi_file = os.path.join(img, filename)
+                    clip = VideoFileClip(avi_file)
+                    mp4_file = os.path.join(img, f.filename)
+                    clip.write_videofile(mp4_file)
+                    video_file = os.path.join(img, f.filename)
+                else:
+                    return render_template('error.html')
+                # for result in results:
+                #     values = result.boxes.cls
+                #     integer_value = values.int()
+                #     if 5 in integer_value:
+                #         if 4 in integer_value:
+                #             print("Not wearing safety west")
+                #         if 2 in integer_value:
+                #             print("Not wearing Hardhat")
+                #         if 3 in integer_value:
+                #             print("Not wearing mask")
+                # print(video_file,"video_file")
+                return render_template('result.html',  image_filename=image_file, video_filename=video_file)
+            return render_template('error.html')
         return render_template('error.html')
 
     if request.method == 'GET':

@@ -37,8 +37,9 @@
     {% if image_filename %}
     <img src="{{ image_filename }}" alt="Custom Image" style="width:500px;height:600px;">
     {% else %}
+    
     <video width="320" height="240" controls>
-        <source src="{{ video_filename }}" type="video/ogg">
+        <source src="{{ video_filename }}" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     {% endif %}
