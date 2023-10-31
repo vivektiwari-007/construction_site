@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <style>
         .menubar {
             border: 1px solid black;
@@ -23,6 +25,24 @@
             padding: 8px 16px;
             text-decoration: none;
         }
+        .form-container {
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .custom-image {
+            margin: 20px;
+            width: 500px;
+            height: 500px;
+        }
+
+        .error-message {
+            margin: 20px;
+            color: red;
+        }
+        .custom_video{
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
@@ -33,12 +53,48 @@
     </ul>
 </div>
 
-<h1>Upload Image/Video(only allow less then 2 mb)</h1>
-
-<form action="/uploader" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" />
-    <input type="submit" value="Upload" />
-</form>
-
+<div class="container-fluid">
+<div class="row mt-4">
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+            <div class="d-flex">
+                <div class="overflow-auto" style="height: 550px">
+                    {% for file_list in file_list %}
+                    <video class="custom_video" width="590" height="320" controls>
+                        <source src="{{ url_for('static', filename='predict_video/' + file_list) }}" type="video/mp4">
+                    </video>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+            <div class="d-flex">
+                <div class="overflow-auto" style="height: 550px">
+                    <h1>Upload Image</h1>
+                    <div class="form-container">
+                    <form action="/" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="file" />
+                        <input type="submit" value="Upload" />
+                    </form>
+                    {% if image_name %}
+                        <img src="{{ url_for('static', filename='Image/predict/' + image_name) }}" alt="Custom Image" class="custom-image">
+                    {% endif %}
+                    {% if error_message %}
+                        <p class="error-message">{{ error_message }}</p>
+                    {% endif %}
+                </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
 </body>
 </html>
+

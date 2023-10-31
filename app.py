@@ -2,26 +2,14 @@ from flask import Flask, render_template, request, send_from_directory
 import os, shutil
 from ultralytics import YOLO
 from moviepy.editor import *
-
-app = Flask(__name__)
+from pathlib import Path
+app = Flask(__name__, static_folder='static')
 
 # Set the path for the uploaded images
-UPLOAD_FOLDER = 'media'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-img = os.path.join('static', 'Image', 'predict')
-print('img',img)
-
 current_path = os.getcwd()
 static_path = os.path.join(current_path, 'static', 'Image','predict')
-media_path = os.path.join(current_path, 'media')
-print("static_path",static_path)
-print("media_path",media_path)
-
-@app.route('/')
-def upload_file():
-    return render_template('upload.html')
-
+media_path = os.path.join(current_path, 'static', 'media')
+predict_video_path = os.path.join(current_path, 'static', 'predict_video')
 
 #create delete file or folder function
 def delete_file():
@@ -52,25 +40,56 @@ def delete_file():
     else:
         print(f"The folder {media_path} does not exist.")
 
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4'}
+#Allow extension function
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    file_list = []
+    folder_path = Path(predict_video_path) 
+    if folder_path.is_dir():
+        files = [f.name for f in folder_path.iterdir() if f.is_file()]
+        for file in files:
+            file_list.append(file)
+    if request.method == 'POST':
+        delete_file()
+        f = request.files['file']
+        if f.filename == '':
+            return render_template('error.html', error_message="File not selected", file_list=file_list)
+        if f and allowed_file(f.filename):
+            file_path = os.path.join(media_path, f.filename)
+            f.save(file_path)
+            size_bytes = os.path.getsize(file_path)
+            size_mb = size_bytes / (1024 * 1024)
+            if size_mb > 2:
+                return render_template('error.html', error_message="Please upload less then 2 mb of file", file_list=file_list)
+            model = YOLO(f'{current_path}\models\\best.pt')
+            results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True)
+            if results:
+                image_file = f.filename
+                return render_template('upload.html',  image_name=image_file, file_list=file_list)
+            return render_template('upload.html', error_message="File does not supported", file_list=file_list)
+        return render_template('upload.html', error_message="File does not supported", file_list=file_list)
+    return render_template('upload.html', file_list=file_list)
+
 
 @app.route('/uploader', methods=['GET', 'POST'])
 def upload_file_result():
     if request.method == 'POST':
-        delete_file()
+        # delete_file()
         f = request.files['file']
         if f.filename == '':
             return render_template('error.html', error_message="File not selected")
         if f and allowed_file(f.filename):
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
-            size_bytes = os.path.getsize(file_path)
-            size_mb = size_bytes / (1024 * 1024)
-            if size_mb > 2:
-                return render_template('error.html', error_message="Please upload less then 2 mb of file")
             f.save(file_path)
+            # size_bytes = os.path.getsize(file_path)
+            # size_mb = size_bytes / (1024 * 1024)
+            # if size_mb > 2:
+            #     return render_template('error.html', error_message="Please upload less then 2 mb of file")
             model = YOLO(f'{current_path}\models\\best.pt')
             # results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True,stream=True)
             results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True)
@@ -108,6 +127,7 @@ def upload_file_result():
         path = f'{current_path}\\runs\detect'
         print("path",path)
         return render_template('result.html', file_path=path)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

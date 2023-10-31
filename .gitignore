@@ -1,4 +1,5 @@
 venv
-static/*
-media/*
+static/image/predict/*
+static/media/*
+
 __pycache__/
