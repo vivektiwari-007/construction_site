@@ -58,21 +58,21 @@ def upload_file():
         delete_file()
         f = request.files['file']
         if f.filename == '':
-            return render_template('error.html', error_message="File not selected", file_list=file_list)
+            return render_template('upload.html', error_message="No file selected. Please choose a file and try again.", file_list=file_list)
         if f and allowed_file(f.filename):
             file_path = os.path.join(media_path, f.filename)
             f.save(file_path)
             size_bytes = os.path.getsize(file_path)
             size_mb = size_bytes / (1024 * 1024)
             if size_mb > 2:
-                return render_template('error.html', error_message="Please upload less then 2 mb of file", file_list=file_list)
+                return render_template('error.html', error_message="The file size exceeds the maximum limit of 2 MB. Please upload a smaller file.", file_list=file_list)
             model = YOLO(f'{current_path}/models/best.pt')
             results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True)
             if results:
                 image_file = f.filename
                 return render_template('upload.html',  image_name=image_file, file_list=file_list)
-            return render_template('upload.html', error_message="File does not supported", file_list=file_list)
-        return render_template('upload.html', error_message="File does not supported", file_list=file_list)
+            return render_template('upload.html', error_message="The file format is not supported", file_list=file_list)
+        return render_template('upload.html', error_message="The file format is not supported", file_list=file_list)
     return render_template('upload.html', file_list=file_list)
 
 
