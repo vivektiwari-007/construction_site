@@ -66,7 +66,7 @@ def upload_file():
             size_mb = size_bytes / (1024 * 1024)
             if size_mb > 2:
                 return render_template('error.html', error_message="Please upload less then 2 mb of file", file_list=file_list)
-            model = YOLO(f'{current_path}\models\\best.pt')
+            model = YOLO(f'{current_path}/models/best.pt')
             results = model.predict(file_path, save=True, imgsz=320, conf=0.5, project=f"{current_path}/static/Image/", exist_ok=True)
             if results:
                 image_file = f.filename
