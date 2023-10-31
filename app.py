@@ -3,7 +3,12 @@ import os, shutil
 from ultralytics import YOLO
 from moviepy.editor import *
 from pathlib import Path
+import logging
+
+
 app = Flask(__name__, static_folder='static')
+
+logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 # Set the path for the uploaded images
 current_path = os.getcwd()

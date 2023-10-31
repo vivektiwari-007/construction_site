@@ -1,5 +1,5 @@
 venv
 static/image/predict/*
 static/media/*
-
+*.log
 __pycache__/
